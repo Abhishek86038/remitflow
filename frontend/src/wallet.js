@@ -17,7 +17,8 @@ export const connectWallet = async () => {
         const publicKey = await kit.getPublicKey();
         return publicKey;
     } catch (e) {
-        throw new Error('Failed to connect wallet');
+        console.error('Wallet connection error details:', e);
+        throw new Error('Failed to connect wallet: ' + e.message);
     }
 };
 
