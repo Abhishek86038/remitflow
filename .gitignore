@@ -1,0 +1,29 @@
+# Node modules
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Rust/Cargo
+target/
+target2/
+target_deploy/
+**/*.rs.bk
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE Files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Stellar/Soroban CLI configurations
+.stellar/
+identity/
+admin.toml
