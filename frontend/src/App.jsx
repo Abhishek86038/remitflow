@@ -6,6 +6,8 @@ import { connectWallet } from './wallet';
 import { getLimit } from './complianceContract';
 import { deposit, releaseFunds, getTransferHistory } from './escrowContract';
 import { getRecentEvents } from './activityFeed';
+import { trackEvent } from './utils/analytics';
+import { logException, logMetric } from './utils/monitoring';
 import './styles/main.css';
 
 function App() {
@@ -46,22 +48,28 @@ function App() {
   }, [address]);
 
   const handleConnect = async () => {
+    const startTime = Date.now();
     try {
       const pubKey = await connectWallet();
       setAddress(pubKey);
       toast.success('Wallet connected successfully!');
+      trackEvent('wallet_connected', { address: pubKey });
+      logMetric('wallet_connection_time', Date.now() - startTime);
     } catch (e) {
       toast.error('Failed to connect wallet: ' + e.message);
+      logException(e, { action: 'wallet_connect' });
     }
   };
 
   const handleDisconnect = async () => {
     try {
-      // Disconnect via kit or simply clear state
+      const prevAddress = address;
       setAddress('');
       toast.info('Wallet disconnected');
+      trackEvent('wallet_disconnected', { address: prevAddress });
     } catch (e) {
       console.error(e);
+      logException(e, { action: 'wallet_disconnect' });
     }
   };
 
@@ -71,8 +79,10 @@ function App() {
     if (!recipient || !amount) return toast.error('Please fill all fields');
     if (Number(amount) > limit) return toast.error(`Amount exceeds compliance limit of ${limit} XLM`);
 
+    const startTime = Date.now();
     try {
       setLoading(true);
+      trackEvent('deposit_initiated', { sender: address, recipient, amount });
       
       // Step 0: Sent
       setActiveTracker({
@@ -107,6 +117,9 @@ function App() {
           currentStep: 2,
           label: 'Escrow Locked (XLM Deposited)'
         }));
+
+        trackEvent('deposit_success', { sender: address, recipient, amount, hash: res.hash });
+        logMetric('deposit_execution_time', Date.now() - startTime);
         
         setAmount('');
         setRecipient('');
@@ -114,6 +127,8 @@ function App() {
       }
     } catch (e) {
       setActiveTracker(null);
+      trackEvent('deposit_failed', { sender: address, recipient, amount, error: e.message });
+      logException(e, { action: 'deposit', sender: address, recipient, amount });
       toast.error(e.message || 'Deposit failed');
     } finally {
       setLoading(false);
@@ -122,6 +137,7 @@ function App() {
 
   const handleRelease = async (transferId) => {
     if (!address) return toast.error('Please connect your wallet first');
+    const startTime = Date.now();
     try {
       const transferObj = history.find(t => t.id === transferId);
       if (transferObj) {
@@ -133,6 +149,7 @@ function App() {
         });
       }
 
+      trackEvent('release_initiated', { recipient: address, transferId });
       const res = await releaseFunds(address, transferId);
       if (res.success) {
         toast.success(`Funds released! Hash: ${res.hash.slice(0,10)}...`);
@@ -146,9 +163,13 @@ function App() {
           });
         }
         
+        trackEvent('release_success', { recipient: address, transferId, hash: res.hash });
+        logMetric('release_execution_time', Date.now() - startTime);
         loadData();
       }
     } catch (e) {
+      trackEvent('release_failed', { recipient: address, transferId, error: e.message });
+      logException(e, { action: 'release', recipient: address, transferId });
       toast.error(e.message || 'Release failed');
     }
   };
