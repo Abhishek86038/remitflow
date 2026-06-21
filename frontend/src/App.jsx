@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Wallet, ArrowRight, ShieldCheck, Lock, CheckCircle, Activity, History } from 'lucide-react';
-import { connectWallet, kit } from './wallet';
+import { connectWallet } from './wallet';
 import { getLimit } from './complianceContract';
 import { deposit, releaseFunds, getTransferHistory } from './escrowContract';
 import { getRecentEvents } from './activityFeed';
