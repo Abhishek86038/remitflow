@@ -22,17 +22,12 @@ function App() {
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (address) {
-      loadData();
-    }
-  }, [address]);
-
-  const loadData = async () => {
-    const fetchedLimit = await getLimit(address);
+  const loadData = async (addr = address) => {
+    if (!addr) return;
+    const fetchedLimit = await getLimit(addr);
     setLimit(fetchedLimit);
     
-    const fetchedHistory = await getTransferHistory(address);
+    const fetchedHistory = await getTransferHistory(addr);
     setHistory(fetchedHistory);
 
     const fetchedEvents = await getRecentEvents();
@@ -40,9 +35,15 @@ function App() {
   };
 
   useEffect(() => {
+    if (address) {
+      loadData(address);
+    }
+  }, [address]);
+
+  useEffect(() => {
     let interval;
     if (address) {
-      interval = setInterval(loadData, 10000); // Poll every 10s
+      interval = setInterval(() => loadData(address), 10000); // Poll every 10s
     }
     return () => clearInterval(interval);
   }, [address]);
@@ -65,6 +66,9 @@ function App() {
     try {
       const prevAddress = address;
       setAddress('');
+      setHistory([]);
+      setLimit(0);
+      setActiveTracker(null);
       toast.info('Wallet disconnected');
       trackEvent('wallet_disconnected', { address: prevAddress });
     } catch (e) {
