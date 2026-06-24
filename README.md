@@ -128,7 +128,7 @@ No custom `.env` is required for local dev, as RPC addresses are preconfigured t
 - **RemittanceEscrow Contract Address**: `CD2PM3DDYTWBM3W5LZ4HYK42SIQ4DDMZRKGZOBI7LU7VT55NK372BALY`
 - **Example Initialization Tx (Testnet)**: `https://stellar.expert/explorer/testnet/tx/5100ad25fcba0a843a31b11e8de822195c7067c1d74a3409c94f3af3f650a0ac`
 - **Stellar Network**: Testnet
-- **Live Demo Link**: `https://remitflow.vercel.app` *(Or host on your own provider)*
+- **Live Demo Link**: [remitflow-six.vercel.app](https://remitflow-six.vercel.app/)
 
 ---
 
@@ -183,6 +183,9 @@ No custom `.env` is required for local dev, as RPC addresses are preconfigured t
 
 ### Proof of 10+ Wallet Interactions
 - Logged Testnet transactions: [proof_interactions.json](./docs/proof_interactions.json)
+
+### Demo link
+- Live Web Application: [remitflow-six.vercel.app](https://remitflow-six.vercel.app/)
 
 ### User Feedback Summary
 - Beta Testers reported: *"Extremely premium interface. The glassmorphism and real-time transaction stepper make it feel much more secure than traditional web3 wallets."*
